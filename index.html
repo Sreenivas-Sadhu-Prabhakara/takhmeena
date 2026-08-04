@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/takhmeena/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Log what you remember quoting against what you finally billed, job type by job type, and print one A4 sheet showing where your quotes run short — and how often those quotes are even accepted. Free, private, offline. This demo stores nothing.">
+
+  <meta property="og:title" content="Quote vs final bill tracker — takhmeena">
+  <meta property="og:description" content="See which repair jobs you under-quote, and how often those quotes are accepted. Won, lost and walked away — all three, because a sheet that only knows won jobs is a mirror.">
+  <meta property="og:type" content="website">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="takhmeena">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>Quote vs Final Bill Tracker for Repair Shops — takhmeena</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      font-feature-settings: "tnum"; }
+    #seo-landing { max-width: 760px; margin: 0 auto; padding: 24px 20px 8px; line-height: 1.55;
+      color: #241C12; background: #FAF6F0; }
+    #seo-landing h1 { font-size: 1.5rem; color: #7A4E1E; margin: 0 0 10px; line-height: 1.25; }
+    #seo-landing h2 { font-size: 1.05rem; margin: 22px 0 6px; }
+    #seo-landing code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+    #seo-landing table { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin: 8px 0; }
+    #seo-landing th, #seo-landing td { border: 1px solid #8F7B60; padding: 6px 8px; text-align: left; }
+    #seo-landing th { background: #F2EBE0; }
+    #seo-landing .muted { color: #5C4E3C; font-size: 0.9rem; }
+    #flutter-app { height: 82vh; min-height: 520px; border-top: 3px solid #7A4E1E; }
+    @media (prefers-color-scheme: dark) {
+      #seo-landing { color: #EFE7DA; background: #191410; }
+      #seo-landing h1 { color: #D9954A; }
+      #seo-landing code { background: rgba(255,255,255,0.12); }
+      #seo-landing th, #seo-landing td { border-color: #857055; }
+      #seo-landing th { background: #241D16; }
+      #seo-landing .muted { color: #B7A791; }
+    }
+  </style>
+
+  <!-- The Flutter canvas is not crawlable, so the facts live in real HTML plus
+       JSON-LD. Nothing on this page makes a network call. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "takhmeena",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web, Windows, macOS, Linux, Android, iOS",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+    "description": "A quote vs final bill tracker for repair shops. Record the price you remember quoting, whether the job was won, lost or walked away, and the final bill — then print one A4 sheet per month showing, per job type, how many of your quotes are accepted and how far your final bill typically lands from your quote."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I know if I am under-quoting?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Record the price you remember quoting and, when you win the job, the final bill. takhmeena reports the median of (billed minus quoted) per job type. A job type where the bill regularly lands above the quote is one you tend to quote low. The median is used rather than the average so one unusual job cannot move it." }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does the sheet show how often quotes are accepted?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Because a sheet that only knows won jobs is a mirror. Every job you lost because the quote was too high is invisible to the gap column, so a won-jobs-only reading is wrong in one direction by construction. Winning nine of ten brake jobs while billing above the quote means something quite different from winning three of ten engine jobs. The two columns are read together." }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to a customer who never came back?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It is recorded as a third outcome, walked away, and counted in its own column. The acceptance rate is printed twice — once over decided quotes (won plus lost) and once over every quote you gave (won plus lost plus walked away) — because never came back is more often a soft no than a neutral event. Where more customers walked away than ever decided, no single percentage is printed at all: the raw counts are printed instead." }
+      },
+      {
+        "@type": "Question",
+        "name": "What if I forget to enter the jobs I lost?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Then no acceptance rate on the sheet is printed at all. Lost and walked-away jobs are the ones with no bill book behind them, so they are the ones most likely never to be typed in — and an unentered lost job is missing from both denominators equally, which no ratio can detect. When almost every quote in a month is recorded as won, takhmeena suppresses both percentages and prints the raw counts with a line saying why." }
+      },
+      {
+        "@type": "Question",
+        "name": "What if I only have a few jobs in a job type?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Then the cell prints a dash and the reason, not a number. By default a job type needs three won jobs before a typical gap is shown and five decided quotes before an acceptance rate is shown. Neither minimum can be set below three. takhmeena would rather print nothing than print a number you would act on." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does takhmeena tell me what to charge?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. There is no price list, no suggested price, no forecast and no target. It knows nothing about your costs, your parts or your staff. It reports two numbers you entered and the distance between them, and it never calls either direction good." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it do invoices or a credit ledger?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, deliberately. takhmeena records a number you already gave a customer; it never produces the estimate, the invoice or the receipt. There is no udhaar or dues ledger of any kind — a job's outcome is won, lost or walked away, never unpaid." }
+      },
+      {
+        "@type": "Question",
+        "name": "Where does my data go?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Nowhere. The full app is local-first: your data is a SQLite file on your own machine and the app runs on localhost. There is no account, no sync, no encryption and nothing is uploaded. This web demo keeps everything in your browser tab and a refresh resets it." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main id="seo-landing">
+    <h1>Quote vs final bill tracker — see which repair jobs you under-quote, and how often those quotes are accepted</h1>
+
+    <p><strong>takhmeena</strong> is for the owner of a family repair shop or garage —
+    cycle, two-wheeler, appliance, mobile — who quotes a price out loud twenty times a
+    day and finds out at the end of the month that some kinds of work never quite pay.</p>
+
+    <p>Entry is a <strong>shutter-down job</strong>: at close, the day's jobs get one
+    line each, from memory and the bill book. Nothing is asked of you while a customer
+    is standing there. Once a month you print one A4 sheet.</p>
+
+    <h2>What you record, and what it prints</h2>
+    <p>For every job you quoted: the number you <strong>remember quoting</strong>, what
+    happened to it — <strong>won, lost or walked away</strong> — and, if you won it, what
+    the final bill actually said. Tagged by your own job types, which you name yourself.</p>
+
+    <h2>A worked example</h2>
+    <p>Nine brake jobs won and one lost. The quotes and the bills, in rupees:
+    <code>1,200→1,400</code>, <code>1,500→1,750</code>, <code>1,000→1,180</code>,
+    <code>1,800→2,000</code>, <code>1,300→1,520</code>, <code>1,100→1,320</code>,
+    <code>1,600→1,760</code>, <code>1,400→1,640</code>, <code>1,250→1,450</code>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Job type</th><th>Accepted — won ÷ decided · won ÷ all quotes</th><th>Median gap (billed − quoted), won jobs only</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Brake job</td><td>90.00% of decided · 90.00% of all quotes</td><td>+₹200.00 (+16.67%)</td></tr>
+        <tr><td>Engine work</td><td>30.00% of decided · 30.00% of all quotes</td><td>−₹80.00 (−2.00%)</td></tr>
+        <tr><td>Puncture</td><td>2 of 4 decided · 1 walked away</td><td>—  n=2 won, too few to show a gap</td></tr>
+      </tbody>
+    </table>
+
+    <p class="muted">The acceptance column always prints <strong>both</strong> denominators or
+    neither — a single percentage is never shown on its own, because reading whichever
+    one survived a suppression is exactly the selection problem the pair exists to close.
+    On the brake row the two rates are equal because no brake customer walked away.
+    On the puncture row neither is printed: four decided quotes is under the minimum, so
+    the raw fraction prints instead.</p>
+
+    <p class="muted">Read the two columns together. Brake jobs are won almost every time
+    <em>and</em> the bill lands ₹200 above the quote — which may simply mean they are
+    quoted low. Engine work is won three times in ten and bills slightly under. takhmeena
+    prints no verdict about either. The puncture row prints a dash, because two won jobs
+    are not enough to call anything typical.</p>
+
+    <h2>What the sheet refuses to print</h2>
+    <p>If almost every quote in a month is recorded as <em>won</em>, takhmeena prints no
+    acceptance rate at all — only the raw counts, and a line saying why. Lost and
+    walked-away jobs are the ones with no bill book behind them, so they are the ones
+    most likely never to get typed in at close, and a job that was never entered is
+    missing from <em>both</em> denominators equally. No ratio can detect that from the
+    inside, so the sheet declines to print one.</p>
+
+    <h2>Why the third outcome is the whole point</h2>
+    <p>A sheet that only knows the jobs you won is a mirror. Every job you lost
+    <em>because the quote was too high</em> is invisible to the gap column, so a
+    won-jobs-only "you under-quote by ₹200" is wrong in one direction by construction.
+    That is why walked-away jobs get their own column and the acceptance rate is printed
+    over two denominators — <code>won ÷ (won + lost)</code> and
+    <code>won ÷ (won + lost + walked away)</code> — never one alone.</p>
+
+    <h2>What it will not do</h2>
+    <p>No invoices, estimates or receipts. <strong>No credit, udhaar or dues ledger of
+    any kind.</strong> No staff or per-mechanic performance. No parts, stock or costs. No
+    suggested prices, no forecasts, no targets. No accounts, no sync, no sharing between
+    shops, and no internet at runtime. takhmeena ships <strong>zero facts</strong>: every
+    number on every screen is one you typed, and the starter job types are examples of
+    tagging, not a standard.</p>
+
+    <h2>Try it below</h2>
+    <p>The tracker below is loaded with a made-up month for a shop that does not exist.
+    Edit it, add your own jobs, print the sheet — nothing you type leaves this page.</p>
+  </main>
+
+  <div id="flutter-app"></div>
+
+  <script src="flutter.js" defer></script>
+  <!-- buildConfig is injected here at build time from the generated
+       flutter_bootstrap.js (scripts/build-web.sh). Without it the loader throws
+       "requires _flutter.buildConfig" and the app below never mounts. -->
+  <script>window._flutter=window._flutter||{};_flutter.buildConfig = {"engineRevision":"c416acfeb8126e097f758c664aaa3da929e27da0","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}],"useLocalCanvasKit":true};</script>
+  <script>
+    window.addEventListener("load", function () {
+      _flutter.loader.load({ config: { hostElement: document.getElementById("flutter-app") } });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+    "name": "takhmeena \u2014 quote vs final bill tracker",
+    "short_name": "takhmeena",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#FAF6F0",
+    "theme_color": "#7A4E1E",
+    "description": "Log what you remember quoting against what you finally billed, job type by job type, and print one A4 sheet a month.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
